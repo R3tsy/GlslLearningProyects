@@ -1,4 +1,4 @@
-import pygame, time
+import pygame
 from pygame.locals import *
 
 from OpenGL.GL import *
@@ -6,10 +6,10 @@ from OpenGL.GLU import *
 
 obj = open("test.obj")
 
-def OBJ(object):
+def objInterpreter(model):
     points = []
     edges = set()
-    for line in object:
+    for line in model:
         if line[0]+line[1] in 'v ':
             newstr = ''
             for s in line:
@@ -30,7 +30,10 @@ def OBJ(object):
                     temp += l
                 else:
                     temp += ''
-            temp = temp.replace('//', ',')
+            if (line.split('/'))[1].isdigit():
+                temp = temp.replace('/', ',')
+            else:
+                temp = temp.replace('//', ',')
             lst = temp.split(" ")
             lst.pop(0)
 
@@ -41,8 +44,7 @@ def OBJ(object):
             for p in range(len(verts)):
                 v1 = verts[p]
                 v2 = verts[(p + 1) % len(verts)]
-                edge = tuple(sorted((v1, v2)))
-                edges.add(edge)
+                edges.add(tuple(sorted((v1, v2))))
 
         if line[0] in 'l':
             lst = []
@@ -54,8 +56,8 @@ def OBJ(object):
 
     return points, edges
 
-with open("test.obj") as obj_file:
-    verticies, lines = OBJ(obj_file)
+with obj as obj_file:
+    verticies, lines = objInterpreter(obj_file)
 
 def robject():
     glBegin(GL_LINES)
